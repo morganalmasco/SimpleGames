@@ -186,5 +186,6 @@ public class GoFish
 
     public static void main(String[] args) {
         new GoFish();
+        System.out.println("Updated");
     }
 }
