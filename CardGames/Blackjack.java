@@ -132,7 +132,7 @@ public class Blackjack
         }
         System.out.println();
         System.out.println();
-        System.out.println("Your Hand:"+this.getPointsBJ(player));
+        System.out.println("Your Hand:"+getPointsBJ(player));
 
         for(Card card : player)
         {
