@@ -10,10 +10,6 @@ import java.util.Scanner;
 // 1. user always starts, can choose between players to ask for cards.
 //
 //Agenda - Scenarios when player/dealer has no cards left and/or no more cards left in deck
-// If deck.size() > 0 ->
-//      If user.size() == 0 || dealer.size() == 0, then draw 4 or remaining cards from deck
-// else ->
-//      a
 public class GoFish
 {
     private Scanner scan;
@@ -32,49 +28,34 @@ public class GoFish
         user = new ArrayList<>();
         dealer = new ArrayList<>();
 
-        for(int initial = 0; initial < 0; initial++)
+        for(int initial = 0; initial < 7; initial++)
         {
             user.add(deck.draw());
             dealer.add(deck.draw());
             //System.out.println(deck.getSize());
         }
 
-        
-        //Map<Map<Card.Rank,List<Card>>, List<Card>> updatedUser = hasBook(user);
-        //updatedUser = hasBook(user);
-        //Map<Card.Rank,List<Card>> books = new HashMap<>();
-        int totalBooks = 0;
-        int dealerBooksSize = 0;
-        int userBooksSize = 0;
 
         userBooks = new HashMap<>();
         dealerBooks = new HashMap<>();
 
-        while(user.size() > 0 && dealer.size() > 0 && deck.getDeck().size() > 0)
+        while((user.size() > 0 && dealer.size() > 0) || deck.getSize() > 0)
         {
-
-            booksResult updatedUser = hasBook(user);
-            booksResult updatedDealer = hasBook(dealer);
-            user = updatedUser.remaining;
-            dealer = updatedDealer.remaining;
-
-            userBooks = updatedUser.book;
-            dealerBooks = updatedDealer.book;
+            //add updatedUser and updatedDealer to display(), rename display() to game()
             
-            for(Card card : dealer)
-            {
-                System.out.print("|" + card.getRank() + " OF " + card.getSuit() + "|");
-            }
-            System.out.println("\t-----------------");
-            userBooksSize += userBooks.size();
-            dealerBooksSize += dealerBooks.size();
-            totalBooks = userBooksSize + dealerBooksSize;
             display();
             //scan.nextLine();
         }
+
+        if(userBooks.size() > dealerBooks.size())
+            System.out.println("USER WINS!");
+        else if(userBooks.size() < dealerBooks.size())
+            System.out.println("DEALER WINS!");
+        else
+            System.out.println("STALEMATE");
     }
 
-    public booksResult hasBook(List<Card> hand)
+    public BooksResult hasBook(List<Card> hand)
     {
         Map<Card.Rank, Integer> dict = new HashMap<>();
         for(Card card : hand)
@@ -117,7 +98,7 @@ public class GoFish
             }
         }
 
-        booksResult updatedHand = new booksResult();
+        BooksResult updatedHand = new BooksResult();
         updatedHand.book = myBooks;
         updatedHand.remaining = dupe;
         return updatedHand;
@@ -126,12 +107,45 @@ public class GoFish
     //displays books and your hand, asks user what card to ask for
     public void display()
     {
+        BooksResult updatedUser = hasBook(user);
+        BooksResult updatedDealer = hasBook(dealer);
+        user = updatedUser.remaining;
+        dealer = updatedDealer.remaining;
+
+        
+            
+        /*for(Card card : dealer)
+        {
+            System.out.print("|" + card.getRank() + " OF " + card.getSuit() + "|");
+        }*/
+        System.out.println("\n-----------------");
+
         List<Card.Rank> options = new ArrayList<>();
 
         Map<Card.Rank, Integer> numbOfRanks = new HashMap<>();
-
-        System.out.println("Dealer's Books:\t" + dealerBooks.keySet());
+        System.out.println("Dealer's Cards: " + dealer.size());
+        System.out.println("User's Cards: " + user.size());
+        System.out.println("\nDealer's Books:\t" + dealerBooks.keySet());
         System.out.println("Your Books:\t" + userBooks.keySet());
+        System.out.println("Cards remaining in deck: " + deck.getSize());
+        if(user.isEmpty() && !deck.getDeck().isEmpty())
+        {
+            if(deck.getSize() >=4)
+            {
+                System.out.println("You have no more cards in your hand. Drawing 4 cards from deck...");
+                user.addAll(deck.drawAmount(4));
+            }
+            else
+            {
+                System.out.println("You have no more cards in your hand. Drawing " + deck.getSize() + " cards from deck...");
+                user.addAll(deck.drawAmount(deck.getSize()));
+            }
+
+        }
+        else if(deck.getDeck().isEmpty())
+        {
+            return;
+        }
         System.out.println("\nYour Hand:");
 
         for(Card card : user)
@@ -152,30 +166,46 @@ public class GoFish
         }
         System.out.println();
 
-        for(Card.Rank rank : numbOfRanks.keySet())
+        /*for(Card.Rank rank : numbOfRanks.keySet())
         {
             System.out.print("|" + numbOfRanks.get(rank) + "x" + rank + "|");
         }
         System.out.println("\n\nChoose a card to ask for:");
+        */
         
 
         for(int index = 0; index < options.size() ; index++)
         {
-            System.out.print("|" + (index + 1) + ": " + options.get(index) + "|");
+            System.out.print("|" + (index + 1) + ": " + options.get(index) + "(x" + numbOfRanks.get(options.get(index)) + ")|");
         }
 
         System.out.println();
-        int input = scan.nextInt() - 1;
-        Card.Rank inputRank = options.get(input);
+
+        int input;
+        Card.Rank inputRank;
+        while (true) { 
+            try 
+            {
+                input = scan.nextInt() - 1;
+                inputRank = options.get(input);
+                break;
+            } catch (Exception e) 
+            {
+                System.out.println("Invalid Card");
+            }
+            
+        }
+        
 
         System.out.print("\033[H\033[2J");
-        for(Card.Rank rank : numbOfRanks.keySet())
+        for(int index = 0; index < options.size() ; index++)
         {
-            System.out.print("|" + numbOfRanks.get(rank) + "x" + rank + "|");
+            System.out.print("|" + (index + 1) + ": " + options.get(index) + "(x" + numbOfRanks.get(options.get(index)) + ")|");
         }
         System.out.print("\nYou are asking for " + inputRank + "\'s");
         for(int count = 0; count <= 5; count++)
         {
+            
             try 
             {
                 Thread.sleep(500);
@@ -185,6 +215,7 @@ public class GoFish
                 e.printStackTrace();
             }
             System.out.print(".");
+            
         }
 
         //List that contains the cards that the user asks for.
@@ -226,7 +257,7 @@ public class GoFish
 
             
         }
-
+        
         try 
         {
             Thread.sleep(2000);
@@ -235,53 +266,70 @@ public class GoFish
         {
             e.printStackTrace();
         }
+        
         System.out.println();   
 
-        
-        int ranCard = ran.nextInt(0,dealer.size());
-
-        System.out.print("Dealer asks for");
-        for(int i = 0 ; i <= 2 ; i++)
+        if(dealer.size() > 0 && !deck.getDeck().isEmpty())
         {
-            System.out.print(".");
-            if(i == 2)
-                System.out.print(dealer.get(ranCard).getRank() + "\'s\n");
+            int ranCard = ran.nextInt(0,dealer.size());
+
+            System.out.print("Dealer asks for");
+            for(int i = 0 ; i <= 2 ; i++)
+            {
+                System.out.print(".");
+                if(i == 2)
+                    System.out.print(dealer.get(ranCard).getRank() + "\'s\n");
+                
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                
+            }
+
+            List<Card> giveToDealer = new ArrayList<>();
+            for(int i = user.size() - 1; i >= 0; i--)
+            {
+                Card.Rank rank = user.get(i).getRank();
+                if(rank == dealer.get(ranCard).getRank())
+                {
+                    giveToDealer.add(user.get(i));
+                    dealer.add(user.get(i));
+                    user.remove(i);
+                }
+            }
+
+            if(giveToDealer.size() == 0)
+            {
+                System.out.println("You give away no cards.");
+                dealer.add(deck.draw());
+            }
+
+            else
+                System.out.println("You give away " + giveToDealer.size() + "x" + dealer.get(ranCard).getRank() + "\n");
+
+            
             try {
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            
         }
-
-        List<Card> giveToDealer = new ArrayList<>();
-        for(int i = user.size() - 1; i >= 0; i--)
+        else if(deck.getDeck().isEmpty())
         {
-            Card.Rank rank = user.get(i).getRank();
-            if(rank == dealer.get(ranCard).getRank())
-            {
-                giveToDealer.add(user.get(i));
-                dealer.add(user.get(i));
-                user.remove(i);
-            }
+            return;
         }
-
-        if(giveToDealer.size() == 0)
-        {
-            System.out.println("You give away no cards.");
-            dealer.add(deck.draw());
-        }
-
         else
-            System.out.println("You give away " + giveToDealer.size() + "x" + dealer.get(ranCard).getRank() + "\n");
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        {
+            if(deck.getSize() >=4)
+                dealer.addAll(deck.drawAmount(4));
+            else
+                dealer.addAll(deck.drawAmount(deck.getSize()));
         }
-        //return options.get(input);
-
-
+        userBooks.putAll(updatedUser.book);
+        dealerBooks.putAll(updatedDealer.book);
     }
 
 
@@ -294,12 +342,14 @@ public class GoFish
         for(int a = 0; a <= 5; a++)
         {
             System.out.print(".");
+            
             try{
                 Thread.sleep(500);
             }
             catch (InterruptedException e){
                 e.printStackTrace();
             }
+            
             if(a == 5)
                 System.out.println("1x" + card.getRank());
             
@@ -312,7 +362,7 @@ public class GoFish
     }
 }
 
-class booksResult {
+class BooksResult {
     Map<Card.Rank, List<Card>> book;
     List<Card> remaining;
 }

@@ -43,9 +43,19 @@ public class Deck
 
         public Card draw()
         {
-            Card drawnCard = this.cards.get(0);
+            Card cardDrawn = this.cards.get(0);
             this.cards.remove(0);
-            return drawnCard;
+            return cardDrawn;
+        }
+        public List<Card> drawAmount(int drawAmount)
+        {
+            List<Card> cardsDrawn = new ArrayList<>();
+            for(int a = 0; a < drawAmount; a++)
+            {
+                cardsDrawn.add(draw());
+            }
+            return cardsDrawn;
+
         }
 
         public List<Card> getDeck()
