@@ -271,9 +271,9 @@ public class TicTacToe
                                 grid[1][2] = 'O';
                                 break;
                             }
-                            else if(cellIsEmpty(2,0) && ranEdge == 4)
+                            else if(cellIsEmpty(2,1) && ranEdge == 4)
                             {
-                                grid[2][0] = 'O';
+                                grid[2][1] = 'O';
                                 break;
                             }
                         }
@@ -488,6 +488,7 @@ public class TicTacToe
                                     {
                                         cell[0] = row;
                                         cell[1] = col+2;
+                                        return cell;
                                     }
                                 }
                                 //compares top right corner
@@ -497,6 +498,7 @@ public class TicTacToe
                                     {
                                         cell[0] = 1;
                                         cell[1] = 1;
+                                        return cell;
                                     }
                                 }
                             }
